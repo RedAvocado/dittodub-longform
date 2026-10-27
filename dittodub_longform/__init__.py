@@ -22,8 +22,6 @@ from .text import normalize
 __all__ = ["LongForm", "Settings", "normalize", "SAMPLE_RATE"]
 MODEL = "inclusionAI/Ming-3.0-tts-0.5b"
 MODEL_REVISION = "8d66b70a00f05ad183fa8a863b4ce609fc83cbc0"  # the exact weights every result was measured with
-ASR = "mlx-community/Qwen3-ASR-0.6B-8bit"  # transcribes cloning references; all of Ming's languages
-ASR_REVISION = "89e96d92ba34aca20b3e29fb10cc284097d1219f"
 
 
 def _official_posterior(model):
@@ -49,20 +47,6 @@ def _read(path):
     if a.size == 0 or not np.isfinite(a).all():
         raise ValueError(f"{path}: empty or non-finite audio")
     return a.mean(axis=1), sr
-
-
-_asr = None
-
-
-def transcribe(audio, sample_rate):
-    """Transcript of a reference clip: Qwen3-ASR 0.6B through mlx-audio (about 1 GB, downloaded on first use; the
-    language is detected automatically)."""
-    global _asr
-    from .speaker import resample
-    if _asr is None:
-        from mlx_audio.stt.utils import load_model as load_asr
-        _asr = load_asr(ASR, revision=ASR_REVISION)
-    return " ".join(_asr.generate(resample(audio, sample_rate, 16000)).text.split())
 
 
 def _units(t):
@@ -153,6 +137,7 @@ class LongForm:
         if key not in self._clones:
             audio, sr = _read(reference) if not isinstance(reference, tuple) else reference
             if not transcript:
+                from .asr import transcribe
                 transcript = transcribe(np.asarray(audio, dtype=np.float32), sr)
                 if verbose:
                     print(f"Reference transcript: {transcript}")

@@ -109,6 +109,13 @@ and constants reused across the ten flow steps, the flow solver captured in CUDA
 unused vocabulary logits skipped. Audio, latents and random-number state are bit-identical to stock CUDA. It covers
 Ming's standard generation; the long-form method itself runs on Apple silicon.
 
+**Memory when cloning.** The reference clip is transcribed with Qwen3-ASR one layer at a time instead of as one big
+graph: the same operations in the same order, so the encoder output, every decoding step and the transcript are
+byte-for-byte those of stock mlx-audio (checked on nine clips, English and Mandarin, 2 to 120 s). A 10 s clip peaks
+at 1.14 GB instead of 1.79 GB, and the transcriber is freed before Ming starts speaking. Over a whole cloning run on
+an M4 Max, peak Metal memory falls from 4.5 to 3.9 GB, and from 3.8 to 2.8 GB while speaking; the audio is
+unchanged.
+
 ## Install
 
 Requires an Apple silicon Mac and Python 3.10+.
