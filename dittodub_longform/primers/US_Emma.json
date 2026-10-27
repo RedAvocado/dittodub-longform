@@ -1,0 +1,7 @@
+{
+ "text": "I'll read this passage slowly and clearly, one sentence at a time.",
+ "source": "model-generated, cfg 0.5, seed 1",
+ "frames": 57,
+ "spectral_distance_db": 3.71,
+ "words_per_second": 2.94
+}

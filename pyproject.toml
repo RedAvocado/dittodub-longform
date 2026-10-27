@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dittodub-longform"
+version = "0.1.0"
+description = "Whole passages in one continuous take with Ming 3.0 TTS 0.5B on Apple silicon"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "DittoDub" }]
+requires-python = ">=3.10"
+dependencies = [
+    # the exact mlx-audio and MLX every result was measured with (later mlx-audio changed Ming's numerics)
+    "mlx-audio @ git+https://github.com/Blaizzy/mlx-audio@2209e6d76c18d0a24f7ff64d35b4176258acd909",
+    "mlx==0.32.4",
+    "numpy",
+    "soundfile",
+    "huggingface_hub",
+    "mlx-whisper",  # transcribes a cloning reference when no transcript is given
+]
+
+[project.scripts]
+dittodub-longform = "dittodub_longform.__main__:main"
+
+[tool.setuptools]
+packages = ["dittodub_longform"]
+
+[tool.setuptools.package-data]
+dittodub_longform = ["primers/*.npy", "primers/*.json"]
