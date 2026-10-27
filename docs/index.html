@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DittoDub Long-Form: before and after</title>
+<link rel="icon" type="image/png" href="img/dittodub-icon-color.png">
 <meta name="description" content="Listen to Ming 3.0 TTS long-form speech before and after DittoDub Long-Form.">
 <style>
   :root { --bg: #fcfcfb; --fg: #0b0b0b; --muted: #52514e; --line: #e4e3df; --accent: #2a78d6; }
@@ -28,11 +29,18 @@
   td, th { padding: 6px 14px 6px 0; text-align: left; border-bottom: 1px solid var(--line); }
   th { font-weight: 600; }
   footer { margin-top: 56px; color: var(--muted); font-size: 14px; }
+  .brand { display: inline-block; margin: 0 0 22px; }
+  .brand img { height: 34px; width: auto; border-radius: 0; margin: 0; display: block; }
+  .brand-small img { height: 22px; margin: 0 0 10px; }
   @media (max-width: 640px) { .pair { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <main>
+<a class="brand" href="https://dittodub.com" aria-label="DittoDub"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/dittodub-text-white.svg">
+  <img src="img/dittodub-text-color.svg" alt="DittoDub">
+</picture></a>
 <h1>DittoDub Long-Form</h1>
 <p>Long-form speech with <a href="https://github.com/inclusionAI/Ming-3.0-tts">Ming 3.0 TTS</a> on Apple silicon,
 by <a href="https://dittodub.com">DittoDub</a>. Every pair below uses the same text, voice and seed; nothing is
@@ -107,8 +115,13 @@ only the first six of ten steps.</p>
 </div>
 
 <footer>
+  <a class="brand brand-small" href="https://dittodub.com" aria-label="DittoDub"><picture>
+    <source media="(prefers-color-scheme: dark)" srcset="img/dittodub-text-white.svg">
+    <img src="img/dittodub-text-color.svg" alt="DittoDub">
+  </picture></a><br>
   Made by <a href="https://dittodub.com">DittoDub</a>: dub your videos into other languages at
   <a href="https://dittodub.com">dittodub.com</a>.<br>
+  Press and logos: <a href="https://dittodub.com/press">dittodub.com/press</a>.<br>
   Ming 3.0 TTS by inclusionAI (MIT). Code: <a href="https://github.com/RedAvocado/dittodub-longform">github.com/RedAvocado/dittodub-longform</a>.
 </footer>
 </main>

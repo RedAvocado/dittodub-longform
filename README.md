@@ -1,3 +1,12 @@
+<p align="center">
+  <a href="https://dittodub.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/img/dittodub-text-white.svg">
+      <img src="docs/img/dittodub-text-color.svg" alt="DittoDub" width="320">
+    </picture>
+  </a>
+</p>
+
 # DittoDub Long-Form
 
 **Long-form speech with [Ming 3.0 TTS 0.5B](https://github.com/inclusionAI/Ming-3.0-tts): whole paragraphs in one
@@ -190,4 +199,4 @@ MIT. The Ming 3.0 weights are released by inclusionAI under the MIT license.
 ---
 
 DittoDub Long-Form is made by [DittoDub](https://dittodub.com). Dub your videos into other languages at
-[dittodub.com](https://dittodub.com).
+[dittodub.com](https://dittodub.com). Press and logos: [dittodub.com/press](https://dittodub.com/press).
