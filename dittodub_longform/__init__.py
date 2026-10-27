@@ -97,12 +97,17 @@ def takes(text: str, language: str = "en", max_words: int = 130) -> list[str]:
 class LongForm:
     max_words = 130  # per take; see takes()
 
-    def __init__(self, model: str = MODEL, settings: Settings | None = None):
+    def __init__(self, model: str = MODEL, settings: Settings | None = None, fast: bool = True):
+        """fast: use the faster Metal kernels (dittodub_longform.accel) when a startup check shows they give the same
+        numbers as stock MLX on this Mac; otherwise, or with fast=False, the stock model."""
         from pathlib import Path
         from mlx_audio.tts.utils import load_model
         from mlx_audio.utils import get_model_path
-        path = get_model_path(model, revision=MODEL_REVISION if model == MODEL else None)
-        self.model = load_model(Path(path), strict=True)
+        path = Path(get_model_path(model, revision=MODEL_REVISION if model == MODEL else None))
+        self.model, self.fast = load_model(path, strict=True), False
+        if fast:
+            from . import accel
+            self.model, self.fast = accel.enable(self.model, lambda: load_model(path, strict=True))
         _official_posterior(self.model)
         self.settings = settings or Settings()
         self._encoder = None

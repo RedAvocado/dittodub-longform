@@ -26,6 +26,7 @@ def main(argv=None):
     p.add_argument("--seed", type=int, default=11, help="another seed gives another reading of the same text")
     p.add_argument("--no-normalize", action="store_true", help="read the text as written (no spelled-out numbers)")
     p.add_argument("--model", default=None, help="local checkpoint directory or Hugging Face repo")
+    p.add_argument("--no-fast", action="store_true", help="use stock MLX kernels only")
     p.add_argument("--list-voices", action="store_true", help="show the built-in voices and exit")
     a = p.parse_args(argv)
     if a.list_voices:
@@ -41,7 +42,8 @@ def main(argv=None):
         p.error(f"unknown voice {a.voice!r}; try --list-voices")
     from . import MODEL, LongForm
     print("Loading Ming 3.0 TTS (the first run downloads about 2.8 GB)...", flush=True)
-    tts = LongForm(a.model or MODEL)
+    tts = LongForm(a.model or MODEL, fast=not a.no_fast)
+    print("Fast Metal kernels: " + ("on" if tts.fast else "off (stock MLX)"), flush=True)
     audio = tts.speak(text, a.voice, reference=a.reference, reference_text=a.reference_text, language=a.language,
                       seed=a.seed, normalize_text=not a.no_normalize, verbose=True)
     tts.save(audio, a.output)

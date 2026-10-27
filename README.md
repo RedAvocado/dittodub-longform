@@ -1,7 +1,8 @@
 # DittoDub Long-Form
 
 **Whole passages in one continuous take with [Ming 3.0 TTS 0.5B](https://github.com/inclusionAI/Ming-3.0-tts), on Apple silicon.**
-By [DittoDub](https://dittodub.com).
+
+Made by [DittoDub](https://dittodub.com), AI dubbing and voice localization: **[dittodub.com](https://dittodub.com)**
 
 Ming 3.0 TTS reads short text beautifully. Give it a paragraph in one go and, past half a minute or so, it tends to
 lose its place (skipping ahead or re-reading a sentence), the voice slowly changes colour (hollow, boomy, hissy: it
@@ -94,6 +95,14 @@ Longer texts: the six passages as one 3.5-4 minute reading (one take per paragra
 - *Timbre drift*: per sentence, the 1/3-octave spectrum of the long take against a fresh single-sentence take of the
   same sentence by the same voice, in dB (fresh takes of the same sentence differ from each other by about 2 dB).
 
+## Speed
+
+On an Apple M4 Max a reading takes about 0.28x its own length (a 4-minute chapter in about 70 seconds), using faster
+Metal kernels for the model (fused and cached operations from DittoDub's Ming accelerator) that give the same numbers
+as stock MLX: on the M4 Max the audio is bit-identical with and without them. At startup the package checks this on
+your Mac (a language-model step, a flow-head sample and an audio decode on fixed inputs, compared with stock) and
+falls back to stock MLX (about 0.62x real time on the M4 Max) if anything differs. `--no-fast` turns them off.
+
 ## How it works
 
 1. **Primer.** The context starts from a short clip of the same voice that the model generated itself, passed in
@@ -114,8 +123,7 @@ Longer texts: the six passages as one 3.5-4 minute reading (one take per paragra
 
 ## Limits
 
-- Apple silicon only (MLX). Measured on an M4 Max: about 0.65x real time (a 4-minute reading takes about 2.5
-  minutes).
+- Apple silicon only (MLX).
 - One take covers about one long paragraph. Ming 3.0 0.5B was trained on short text and loses its place in a
   multi-paragraph prompt, so longer texts are read paragraph by paragraph; each paragraph starts from the same voice
   primer, so the voice stays the same, but delivery does not carry across paragraph boundaries.
@@ -128,6 +136,7 @@ Longer texts: the six passages as one 3.5-4 minute reading (one take per paragra
 
 - [Ming 3.0 TTS](https://github.com/inclusionAI/Ming-3.0-tts) by inclusionAI (MIT): the model and weights.
 - [mlx-audio](https://github.com/Blaizzy/mlx-audio) by Prince Canuma (MIT): the MLX port this builds on.
+- The fast Metal kernels include Apple's MLX matrix-multiply header (MIT, see `dittodub_longform/accel/MLX-LICENSE`).
 - [Whisper](https://github.com/openai/whisper) (MIT) via [mlx-whisper](https://github.com/ml-explore/mlx-examples) transcribes cloning references.
 - NTK-aware RoPE scaling (bloc97, 2023); guidance on a limited interval of the sampling steps
   (Kynkäänniemi et al., NeurIPS 2024).
@@ -140,3 +149,8 @@ Use voice cloning only with the speaker's consent.
 ## License
 
 MIT. The Ming 3.0 weights are released by inclusionAI under the MIT license.
+
+---
+
+DittoDub Long-Form is made by [DittoDub](https://dittodub.com). Dub your videos into other languages at
+[dittodub.com](https://dittodub.com).

@@ -24,7 +24,8 @@ dependencies = [
 dittodub-longform = "dittodub_longform.__main__:main"
 
 [tool.setuptools]
-packages = ["dittodub_longform"]
+packages = ["dittodub_longform", "dittodub_longform.accel"]
 
 [tool.setuptools.package-data]
 dittodub_longform = ["primers/*.npy", "primers/*.json"]
+"dittodub_longform.accel" = ["mlx-steel-mma.h", "MLX-LICENSE", "MLX-AUDIO-LICENSE"]
