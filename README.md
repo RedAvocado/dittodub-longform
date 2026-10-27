@@ -182,7 +182,7 @@ Numbers, money, dates, times, units and common abbreviations are spelled out bef
 - [Ming 3.0 TTS](https://github.com/inclusionAI/Ming-3.0-tts) by inclusionAI (MIT): the model and weights.
 - [mlx-audio](https://github.com/Blaizzy/mlx-audio) by Prince Canuma (MIT): the MLX port this builds on.
 - The fast Metal kernels include Apple's MLX matrix-multiply header (MIT, see `dittodub_longform/accel/MLX-LICENSE`).
-- [Whisper](https://github.com/openai/whisper) (MIT) via [mlx-whisper](https://github.com/ml-explore/mlx-examples)
+- [Qwen3-ASR](https://huggingface.co/Qwen/Qwen3-ASR-0.6B) by Alibaba's Qwen team (Apache-2.0), run through mlx-audio,
   transcribes cloning references.
 - NTK-aware RoPE scaling (bloc97, 2023); guidance on a limited interval of the sampling steps
   (Kynkäänniemi et al., NeurIPS 2024).

@@ -17,7 +17,6 @@ dependencies = [
     "numpy",
     "soundfile",
     "huggingface_hub",
-    "mlx-whisper",  # transcribes a cloning reference when no transcript is given
 ]
 
 [project.scripts]

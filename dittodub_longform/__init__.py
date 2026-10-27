@@ -22,7 +22,8 @@ from .text import normalize
 __all__ = ["LongForm", "Settings", "normalize", "SAMPLE_RATE"]
 MODEL = "inclusionAI/Ming-3.0-tts-0.5b"
 MODEL_REVISION = "8d66b70a00f05ad183fa8a863b4ce609fc83cbc0"  # the exact weights every result was measured with
-WHISPER = "mlx-community/whisper-large-v3-turbo"
+ASR = "mlx-community/Qwen3-ASR-0.6B-8bit"  # transcribes cloning references; all of Ming's languages
+ASR_REVISION = "89e96d92ba34aca20b3e29fb10cc284097d1219f"
 
 
 def _official_posterior(model):
@@ -50,13 +51,18 @@ def _read(path):
     return a.mean(axis=1), sr
 
 
+_asr = None
+
+
 def transcribe(audio, sample_rate):
-    """Transcript of a reference clip (Whisper large-v3-turbo on MLX; downloads about 1.6 GB on first use)."""
-    import mlx_whisper
+    """Transcript of a reference clip: Qwen3-ASR 0.6B through mlx-audio (about 1 GB, downloaded on first use; the
+    language is detected automatically)."""
+    global _asr
     from .speaker import resample
-    r = mlx_whisper.transcribe(resample(audio, sample_rate, 16000), path_or_hf_repo=WHISPER, temperature=0.0,
-                               condition_on_previous_text=False)
-    return " ".join(r["text"].split())
+    if _asr is None:
+        from mlx_audio.stt.utils import load_model as load_asr
+        _asr = load_asr(ASR, revision=ASR_REVISION)
+    return " ".join(_asr.generate(resample(audio, sample_rate, 16000)).text.split())
 
 
 def _units(t):
