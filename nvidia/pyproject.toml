@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dittodub-nvidia"
+version = "0.1.0"
+description = "Exact-output CUDA acceleration for Ming 3.0 TTS 0.5B (official PyTorch inference), by DittoDub"
+license = "MIT"
+authors = [{ name = "DittoDub" }]
+requires-python = ">=3.10"
+
+[tool.setuptools]
+packages = ["dittodub_nvidia"]
+
+[tool.setuptools.package-data]
+dittodub_nvidia = ["source_hashes.json"]

@@ -1,20 +1,104 @@
 # DittoDub Long-Form
 
-**Whole passages in one continuous take with [Ming 3.0 TTS 0.5B](https://github.com/inclusionAI/Ming-3.0-tts), on Apple silicon.**
+**Long-form speech with [Ming 3.0 TTS 0.5B](https://github.com/inclusionAI/Ming-3.0-tts): whole paragraphs in one
+continuous take, on Apple silicon.**
 
 Made by [DittoDub](https://dittodub.com), AI dubbing and voice localization: **[dittodub.com](https://dittodub.com)**
 
-Ming 3.0 TTS reads short text beautifully. Give it a paragraph in one go and, past half a minute or so, it tends to
-lose its place (skipping ahead or re-reading a sentence), the voice slowly changes colour (hollow, boomy, hissy: it
-sounds "muffled" by the end), and some words crack. The usual workaround is to cut the text into pieces of a sentence
-or two and synthesize them separately, so every piece starts cold.
+**[Listen to the before and after](https://redavocado.github.io/dittodub-longform/)**
 
-This package reads each paragraph (up to about 130 words) as **one generation with full context**, and a longer text
-as consecutive paragraph-sized takes in the same voice, decoded as one continuous audio stream. No audio
-post-processing. It uses the stock inclusionAI weights; every change is in how the model is run (see
-[How it works](#how-it-works)).
+![Spectrograms of the same paragraph: Ming 3.0 in one take is cut off near 10 kHz; DittoDub Long-Form is full band](docs/img/one-take-james.png)
 
-> Status: research release. Measured on Apple M4 Max with MLX. English and Mandarin.
+*US_James reading a news paragraph in one take. Top: Ming 3.0 locks into a narrow, hollow sound under 10 kHz within
+the first second. Bottom: DittoDub Long-Form, same text, voice and seed.*
+
+## Highlights
+
+- **Reads a paragraph in one take, and longer texts as one audio stream.** No splitting into sentence fragments, no
+  stitching, no audio post-processing. Stock inclusionAI weights; every change is in how the model is run.
+- **Accurate.** 1.4% word error rate on held-out passages, against 10.4% for Ming 3.0 reading the same paragraphs in
+  one take; skipped or repeated words in 1 of 88 takes, against 35 of 88.
+- **The voice holds to the end.** No narrow-band lock-in, no slow slide into a hollow, muffled tone.
+- **Fewer cracked syllables.** About a third as many sudden pitch breaks as Ming's default settings (230 short
+  sentences, five voices), and fewer in long readings.
+- **Faster, same sound.** 2.2x on Apple M4 Max and 2.06x on NVIDIA RTX 5090, with bit-identical output
+  ([Speed](#speed)).
+- **Easy.** One install command; clone a voice from a short clip; numbers, money and dates are read correctly.
+
+## Before and after
+
+### One paragraph in one take
+
+Held-out test: six English passages (news, dialogue, science, a letter, a recipe, an essay; 96-139 words, 30-55 s
+each) and a Mandarin one, two seeds, five built-in English voices (US_Stella was never used while developing the
+method), two cloned voices and two Mandarin voices: 88 takes.
+
+| | Ming 3.0, one take<sup>1</sup> | DittoDub Long-Form |
+|---|---|---|
+| Word error rate | 10.4% | 1.4% |
+| Takes with skipped or repeated words | 35 of 88 | 1 of 88 |
+| Built-in English voices: word error rate, failed takes | 7.3%, 20 of 60 | 1.0%, 0 of 60 |
+| Cloned voices: word error rate, failed takes | 19.8%, 15 of 24 | 2.1%, 1 of 24 |
+| Timbre drift, first third / last third<sup>2</sup> | 4.0 / 5.8 dB | 2.6 / 3.0 dB |
+| Speaker similarity to the voice, start / end of take<sup>3</sup> | 0.868 / 0.807 | 0.928 / 0.914 |
+
+### A four-minute reading
+
+Ming 3.0's own long-text mode cuts the text into fragments of a sentence or two and reads each one separately, so the
+delivery restarts every sentence or two. DittoDub Long-Form reads each paragraph in one take. Six paragraphs, about
+four minutes, three voices:
+
+| | Ming 3.0 default (short fragments) | DittoDub Long-Form |
+|---|---|---|
+| Word error rate | 0.8-1.6% | 0.7-1.8% |
+| Sudden pitch breaks per voiced minute (George / Emma / Stella) | 31.1 / 5.7 / 23.3 | 7.4 / 1.6 / 20.2 |
+| Context while reading | a sentence or two | a whole paragraph |
+| Time on an M4 Max for 4 minutes of speech | about 2.5 min | about 70 s |
+
+### Cracked syllables
+
+In short single sentences (230 sentences, five voices), Ming 3.0's default settings produce 1.36 sudden pitch breaks
+per sentence; DittoDub Long-Form produces 0.48. The two cracks a listener reported on our first Ming examples
+(Charlotte's "owner", James's "way") reproduce exactly with Ming's defaults; with DittoDub Long-Form the 14-semitone
+jump in "owner" falls under 1 semitone and "way" is voiced more cleanly (harmonics-to-noise 10.5 -> 16.9 dB). Both are
+on the [listening page](https://redavocado.github.io/dittodub-longform/).
+
+### Voice similarity
+
+For cloned voices the real speaker is the reference. Against each speaker's own clip (six voices), single sentences
+score 0.929 with DittoDub Long-Form and 0.922 with Ming's default settings, and long takes keep their similarity
+from start to end (0.896 / 0.884). Built-in voices have no recording to compare with: their long takes stay close to
+the voice's own single sentences (table above), and their colour sits slightly apart from Ming's default sentences,
+because guiding only the early flow steps removes the sharpening that late guidance adds.
+
+<sup>1</sup> The same model reading the paragraph in one generation, with its position limit raised so the
+paragraph fits (stock tools refuse anything past 512 positions), guidance 0.5, no other changes.
+<sup>2</sup> Per sentence, the 1/3-octave spectrum of the take against a fresh single-sentence take of the same
+sentence by the same voice; fresh takes of a sentence differ from each other by about 2 dB.
+<sup>3</sup> CAM++ speaker-embedding cosine of the first and last third of each take against the voice's own single
+sentences (guidance 0.5); two sets of single sentences from the same voice score 0.92-0.98 against each other.
+Word errors from a Whisper transcript aligned to the text; a failed take has a run of four or more skipped or
+repeated words or a missing ending.
+
+## Speed
+
+| Hardware | Software | Stock kernels | DittoDub kernels | Output |
+|---|---|---|---|---|
+| Apple M4 Max | MLX, this package | 0.62 | **0.28** (2.2x faster) | bit-identical to stock |
+| NVIDIA RTX 5090 | PyTorch, official Ming code, [`nvidia/`](nvidia/) | 0.340 | **0.165** (2.06x faster) | bit-identical to stock |
+
+Real-time factor: seconds of computing per second of speech (lower is faster).
+
+**Mac (Metal).** Fused and cached Metal kernels for Ming's language model, flow head and audio decoder, from DittoDub's
+Ming accelerator. They give the same numbers as stock MLX: on an M4 Max, full readings (English, a cloned voice,
+Mandarin) are bit-identical with and without them. At startup the package checks this on your Mac (a language-model
+step, a flow-head sample and an audio decode on fixed inputs, compared with stock) and falls back to stock MLX if
+anything differs. `--no-fast` turns them off.
+
+**NVIDIA (CUDA).** [`nvidia/`](nvidia/) is a separate package for Ming 3.0's official PyTorch inference: conditioning
+and constants reused across the ten flow steps, the flow solver captured in CUDA graphs, fused normalization, and
+unused vocabulary logits skipped. Audio, latents and random-number state are bit-identical to stock CUDA. It covers
+Ming's standard generation; the long-form method itself runs on Apple silicon.
 
 ## Install
 
@@ -53,56 +137,6 @@ cached). Separate paragraphs with a blank line; another `--seed` gives another r
 Numbers, money, dates, times, units and common abbreviations are spelled out before synthesis ("$3.50" ->
 "three dollars and fifty cents"); turn this off with `--no-normalize`.
 
-## Results
-
-Held-out test: six English passages (news, dialogue, science, a letter, a recipe, an essay; 96-139 words each) and a
-Mandarin one, two seeds, five built-in English voices (US_Stella was never used while developing the method), two
-cloned voices and two Mandarin voices: 88 takes. Each passage is one continuous take (30-55 s), compared with the
-same model reading it in one take without these changes.
-
-| | Ming 3.0, one take | This package |
-|---|---|---|
-| Word error rate | 10.4% | 1.4% |
-| Takes with skipped or repeated words | 35 of 88 | 1 of 88 |
-| Timbre drift in the last third (first third) | 5.8 dB (4.0) | 3.0 dB (2.6) |
-| Built-in English voices: word error rate, failed takes | 7.3%, 20 of 60 | 1.0%, 0 of 60 |
-| Cloned voices (8 s references) | 19.8%, 15 of 24 | 2.1%, 1 of 24 |
-
-Voice similarity (speaker-embedding cosine, CAM++) of the first and last third of each take against the same
-voice's own single sentences, and for cloned voices against the reference clip:
-
-| | Ming 3.0, one take | This package |
-|---|---|---|
-| Built-in English voices, start / end | 0.868 / 0.807 | 0.928 / 0.914 |
-| Cloned voices vs reference, start / end | 0.908 / 0.878 | 0.896 / 0.884 |
-
-(Two fresh sentence sets of the same built-in voice score 0.92-0.98 against each other.) Delivery against the
-voice's own single sentences, built-in voices: pitch range 3.49 vs 3.93 semitones (Ming one take: 3.25), pitch level
--0.55 semitones (Ming: -1.37), 3.6 words per second (Ming: 3.9; single sentences 3.1).
-
-Four more cloned voices (LibriTTS speakers, 9-11 s references, 48 takes): 1.2% word error rate, 1 failed take.
-
-Sudden pitch breaks ("cracks"): in short single sentences (230 sentences, five voices) 1.36 per sentence with
-Ming's default settings, 0.48 with this package's guidance; in the long takes 8.5 per voiced minute for the built-in
-voices (Ming one take 8.6) and 12.2 for cloned voices (Ming 14.4).
-
-Longer texts: the six passages as one 3.5-4 minute reading (one take per paragraph). Built-in voices (all five):
-0.7-1.8% word error rate, one 4-word skip in five readings, and the timbre stays put (drift in the last third within
-0.5 dB of the first third). The cloned voice (Marina) had three short skips (10% word error rate).
-
-- *Content failures*: takes where a run of four or more words was skipped or repeated, or the ending was missing
-  (word alignment of a Whisper transcript against the text).
-- *Timbre drift*: per sentence, the 1/3-octave spectrum of the long take against a fresh single-sentence take of the
-  same sentence by the same voice, in dB (fresh takes of the same sentence differ from each other by about 2 dB).
-
-## Speed
-
-On an Apple M4 Max a reading takes about 0.28x its own length (a 4-minute chapter in about 70 seconds), using faster
-Metal kernels for the model (fused and cached operations from DittoDub's Ming accelerator) that give the same numbers
-as stock MLX: on the M4 Max the audio is bit-identical with and without them. At startup the package checks this on
-your Mac (a language-model step, a flow-head sample and an audio decode on fixed inputs, compared with stock) and
-falls back to stock MLX (about 0.62x real time on the M4 Max) if anything differs. `--no-fast` turns them off.
-
 ## How it works
 
 1. **Primer.** The context starts from a short clip of the same voice that the model generated itself, passed in
@@ -110,26 +144,28 @@ falls back to stock MLX (about 0.62x real time on the M4 Max) if anything differ
    (~10 kHz) "recording mode" within the first second or two, and the model keeps whatever bandwidth its own
    history has. The primer is context only; it is not in the output. For a cloned voice, the reference clip plays
    this role.
-2. **RoPE scaling.** The language model was trained on sequences up to 512 positions; a long take runs to several
-   thousand. NTK-aware scaling of the rotary position base keeps long distances in the trained range.
+2. **RoPE scaling.** The language model was trained on sequences up to 512 positions; a long take runs past that.
+   NTK-aware scaling of the rotary position base keeps long distances in the trained range.
 3. **Reading-position guard.** Two attention heads in the language model (layer 10, heads 12 and 13) follow where
    it is reading. Text more than a few tokens behind that point is masked, so it cannot jump back and re-read.
-   Late in a long take the model is drawn towards the end of the passage (it was trained on short clips, where a
-   long stretch of audio means the text is nearly done); when the heads suddenly land far ahead, the text beyond
-   the reading point is hidden for a moment and the model is not allowed to stop, until reading settles.
+   Late in a long take the model is drawn towards the end of the passage; when the heads suddenly land far ahead,
+   the last few audio frames are discarded and regenerated with the text beyond the reading point hidden for a
+   moment (and no stopping), so the skip never reaches the audio.
 4. **Guidance on the early flow steps only.** Each 80 ms audio frame is produced by ten flow-matching steps with
-   classifier-free guidance. Guidance on the late, fine-detail steps compounds over a long take into a slow drift
-   of the voice's timbre. Guiding only the first six steps keeps the articulation and removes most of the drift.
+   classifier-free guidance. Guidance on the late, fine-detail steps compounds over a long take into a slow drift of
+   the voice's timbre, and cracks some syllables. Guiding only the first six steps keeps the articulation and removes
+   most of both.
+5. **Paragraph takes.** Ming 3.0 0.5B was trained on short text and cannot keep its place in a multi-paragraph prompt,
+   so a longer text is read one paragraph (up to about 130 words) per take, each from the same primer, and all takes
+   are decoded as one continuous audio stream.
 
 ## Limits
 
-- Apple silicon only (MLX).
-- One take covers about one long paragraph. Ming 3.0 0.5B was trained on short text and loses its place in a
-  multi-paragraph prompt, so longer texts are read paragraph by paragraph; each paragraph starts from the same voice
-  primer, so the voice stays the same, but delivery does not carry across paragraph boundaries.
+- The long-form method runs on Apple silicon (MLX).
+- Delivery does not carry across paragraph boundaries; within a paragraph it does.
 - Tested in English and Mandarin. Ming's other languages (ja, ko, de, fr, es) run but are untested here.
-- Cloned voices are less robust than built-in ones, and a reference clip with noise or several speakers will carry
-  that into the reading.
+- Cloned voices are less robust than built-in ones (in one four-minute cloned reading, three short skips), and a
+  reference clip with noise or several speakers will carry that into the reading.
 - US_Stella reads a little brighter (about +5 dB at 10-13 kHz) than her own single sentences.
 
 ## Credits
@@ -137,7 +173,8 @@ falls back to stock MLX (about 0.62x real time on the M4 Max) if anything differ
 - [Ming 3.0 TTS](https://github.com/inclusionAI/Ming-3.0-tts) by inclusionAI (MIT): the model and weights.
 - [mlx-audio](https://github.com/Blaizzy/mlx-audio) by Prince Canuma (MIT): the MLX port this builds on.
 - The fast Metal kernels include Apple's MLX matrix-multiply header (MIT, see `dittodub_longform/accel/MLX-LICENSE`).
-- [Whisper](https://github.com/openai/whisper) (MIT) via [mlx-whisper](https://github.com/ml-explore/mlx-examples) transcribes cloning references.
+- [Whisper](https://github.com/openai/whisper) (MIT) via [mlx-whisper](https://github.com/ml-explore/mlx-examples)
+  transcribes cloning references.
 - NTK-aware RoPE scaling (bloc97, 2023); guidance on a limited interval of the sampling steps
   (Kynkäänniemi et al., NeurIPS 2024).
 

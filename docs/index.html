@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DittoDub Long-Form: before and after</title>
+<meta name="description" content="Listen to Ming 3.0 TTS long-form speech before and after DittoDub Long-Form.">
+<style>
+  :root { --bg: #fcfcfb; --fg: #0b0b0b; --muted: #52514e; --line: #e4e3df; --accent: #2a78d6; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1a1a19; --fg: #f0efec; --muted: #c3c2b7; --line: #34332f; --accent: #3987e5; }
+  }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 -apple-system, BlinkMacSystemFont,
+         "Segoe UI", Helvetica, Arial, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 40px 20px 64px; }
+  h1 { font-size: 30px; font-weight: 600; margin: 0 0 6px; }
+  h2 { font-size: 21px; font-weight: 600; margin: 48px 0 6px; }
+  h3 { font-size: 16px; font-weight: 600; margin: 26px 0 8px; }
+  p { margin: 6px 0 12px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  a { color: var(--accent); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .pair div { min-width: 0; }
+  .label { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  audio { width: 100%; }
+  img { width: 100%; border-radius: 6px; margin: 8px 0 4px; }
+  table { border-collapse: collapse; font-size: 14px; margin: 10px 0; }
+  td, th { padding: 6px 14px 6px 0; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; }
+  footer { margin-top: 56px; color: var(--muted); font-size: 14px; }
+  @media (max-width: 640px) { .pair { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+<h1>DittoDub Long-Form</h1>
+<p>Long-form speech with <a href="https://github.com/inclusionAI/Ming-3.0-tts">Ming 3.0 TTS</a> on Apple silicon,
+by <a href="https://dittodub.com">DittoDub</a>. Every pair below uses the same text, voice and seed; nothing is
+post-processed. <a href="https://github.com/RedAvocado/dittodub-longform">Code and install</a>.</p>
+
+<h2>One paragraph, one take</h2>
+<p>Reading a whole paragraph in one go, Ming 3.0 can lock into a narrow, hollow sound in the first seconds, drift
+into a muffled tone by the end, and skip or repeat words. DittoDub Long-Form keeps the full voice and its place in
+the text.<span class="muted"> Before: Ming 3.0 with its position limit raised so the paragraph fits in one take,
+guidance 0.5, no other changes.</span></p>
+
+<h3>News report, US_James</h3>
+<img src="img/one-take-james.png" alt="Spectrograms: before, the voice is cut off near 10 kHz; after, full band to 20 kHz">
+<div class="pair">
+  <div><div class="label">Before</div><audio controls preload="none" src="audio/james-paragraph-before.mp3"></audio></div>
+  <div><div class="label">After</div><audio controls preload="none" src="audio/james-paragraph-after.mp3"></audio></div>
+</div>
+
+<h3>Essay, US_Stella</h3>
+<img src="img/one-take-stella.png" alt="Spectrograms for US_Stella before and after">
+<div class="pair">
+  <div><div class="label">Before</div><audio controls preload="none" src="audio/stella-paragraph-before.mp3"></audio></div>
+  <div><div class="label">After</div><audio controls preload="none" src="audio/stella-paragraph-after.mp3"></audio></div>
+</div>
+
+<h3>An argument, US_Emma: listen to how it ends</h3>
+<div class="pair">
+  <div><div class="label">Before (muffled by the end)</div><audio controls preload="none" src="audio/emma-argument-before.mp3"></audio></div>
+  <div><div class="label">After</div><audio controls preload="none" src="audio/emma-argument-after.mp3"></audio></div>
+</div>
+
+<h3>A cloned voice from an 8-second clip</h3>
+<div class="pair">
+  <div><div class="label">Before (re-reads two sentences, garbles the end)</div><audio controls preload="none" src="audio/clone-paragraph-before.mp3"></audio></div>
+  <div><div class="label">After</div><audio controls preload="none" src="audio/clone-paragraph-after.mp3"></audio></div>
+</div>
+
+<h2>A four-minute reading</h2>
+<p>Ming 3.0's own long-text mode cuts the text into fragments of a sentence or two and reads each one separately.
+DittoDub Long-Form reads each paragraph in one continuous take and decodes the whole reading as one audio stream.
+Both are about equally accurate (about 1% word errors); the difference is in how it sounds: delivery that carries
+through a paragraph, and fewer cracked syllables.</p>
+<h3>UK_George, six paragraphs</h3>
+<div class="pair">
+  <div><div class="label">Ming 3.0 default (short fragments)</div><audio controls preload="none" src="audio/george-4min-before.mp3"></audio></div>
+  <div><div class="label">DittoDub Long-Form</div><audio controls preload="none" src="audio/george-4min-after.mp3"></audio></div>
+</div>
+<h3>US_Emma, six paragraphs</h3>
+<div class="pair">
+  <div><div class="label">Ming 3.0 default (short fragments)</div><audio controls preload="none" src="audio/emma-4min-before.mp3"></audio></div>
+  <div><div class="label">DittoDub Long-Form</div><audio controls preload="none" src="audio/emma-4min-after.mp3"></audio></div>
+</div>
+<table>
+  <tr><th>4-minute reading</th><th>Ming 3.0 default</th><th>DittoDub Long-Form</th></tr>
+  <tr><td>Sudden pitch breaks per voiced minute (George / Emma / Stella)</td><td>31.1 / 5.7 / 23.3</td><td>7.4 / 1.6 / 20.2</td></tr>
+  <tr><td>Word error rate</td><td>0.8-1.6%</td><td>0.7-1.8%</td></tr>
+  <tr><td>Context</td><td>restarts every sentence or two</td><td>one take per paragraph</td></tr>
+</table>
+
+<h2>Cracked syllables</h2>
+<p>Guidance on the last, fine-detail steps of each audio frame makes some syllables crack. DittoDub Long-Form guides
+only the first six of ten steps.</p>
+<h3>UK_Charlotte, listen to "owner"</h3>
+<div class="pair">
+  <div><div class="label">Ming 3.0 default</div><audio controls preload="none" src="audio/charlotte-crack-before.mp3"></audio></div>
+  <div><div class="label">DittoDub Long-Form</div><audio controls preload="none" src="audio/charlotte-crack-after.mp3"></audio></div>
+</div>
+<h3>US_James, listen to "way"</h3>
+<div class="pair">
+  <div><div class="label">Ming 3.0 default</div><audio controls preload="none" src="audio/james-crack-before.mp3"></audio></div>
+  <div><div class="label">DittoDub Long-Form</div><audio controls preload="none" src="audio/james-crack-after.mp3"></audio></div>
+</div>
+
+<footer>
+  Made by <a href="https://dittodub.com">DittoDub</a>: dub your videos into other languages at
+  <a href="https://dittodub.com">dittodub.com</a>.<br>
+  Ming 3.0 TTS by inclusionAI (MIT). Code: <a href="https://github.com/RedAvocado/dittodub-longform">github.com/RedAvocado/dittodub-longform</a>.
+</footer>
+</main>
+</body>
+</html>
